@@ -20,7 +20,7 @@ def load_images():
         IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 '''
-the main
+the main function
 responsible for handling user inputs and graphics
 '''
 def main():
@@ -29,13 +29,31 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = ChessEngine.GameState()
-    #print(gs.board)
     load_images() # executed once before the while loop
     running = True
+    sq_selected = () #if no square is selected, keep track of the last click of the user
+    player_clicks = [] #keep track of player clicks
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos() #location of the mouse as x & y
+                col = location[0] // SQ_SIZE
+                row = location[1] // SQ_SIZE
+                if sq_selected == (row, col): #if the player clicks the same square twice
+                    sq_selected = () #deselect
+                    player_clicks = [] #clear player clicks
+                else:
+                    sq_selected = (row, col)
+                    player_clicks.append(sq_selected) #append for both 1st & last clicks
+                if len(player_clicks) == 2: #after 2nd click
+                    move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
+                    print(move.get_chess_notation())
+                    gs.make_move(move)
+                    sq_selected = () #after making the move resets the user clicks
+                    player_clicks = []
+
         draw_game_state(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
