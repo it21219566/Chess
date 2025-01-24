@@ -49,11 +49,11 @@ class GameState():
     all moves without considering checks
     '''
     def get_possible_moves(self):
-        moves = [Move((6,4), (4,4), self.board)]
+        moves = []
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
                 turn = self.board[r][c][0]
-                if (turn == 'w' and self.whiteToMove) and (turn == 'b' and self.whiteToMove):
+                if (turn == 'w' and self.whiteToMove) or (turn == 'b' and self.whiteToMove):
                     piece = self.board[r][c][1]
                     if piece == 'P':
                         self.get_pawn_moves(r, c, moves)
@@ -65,7 +65,19 @@ class GameState():
     get all the pawn moves for pawn located in a row, col and add those moves to the list
     '''
     def get_pawn_moves(self, r, c, moves):
-        pass
+        if self.whiteToMove: #white pawn moves
+            if self.board[r-1][c] == '--': #1 square pawn move
+                moves.append(Move((r, c), (r-1, c), self.board))
+                if r == 6 and self.board[r-2][c] == '--': #2 square pawn move
+                    moves.append(Move((r, c), (r-2, c), self.board))
+            if c-1 >= 0: #captures to the left
+                if self.board[r-1][c-1][0] == 'b': #if there is an opponents piece to capture
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+            if c+1 <= 7: #captures to the right
+                if self.board[r-1][c+1][0] == 'b': #if there is an opponents piece to capture
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+        else: #black pawn moves
+            pass
 
     '''
     get all the rook moves for pawn located in a row, col and add those moves to the list
@@ -107,7 +119,6 @@ class Move():
         self.piece_moved = board[self.start_row][self.start_col]
         self.piece_captured = board[self.end_row][self.end_col]
         self.move_id = self.start_row * 1000 + self.start_col * 100 + self.end_row * 10 + self.end_col #gives a unique id to each move
-        print(self.move_id)
 
     '''
     overriding equals method
