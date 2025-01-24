@@ -39,6 +39,56 @@ class GameState():
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.whiteToMove = not self.whiteToMove # after undoing the move swap players turn
 
+    ''''
+    all moves considering checks
+    '''
+    def get_valid_moves(self):
+        return self.get_possible_moves()
+
+    '''
+    all moves without considering checks
+    '''
+    def get_possible_moves(self):
+        moves = [Move((6,4), (4,4), self.board)]
+        for r in range(len(self.board)):
+            for c in range(len(self.board[r])):
+                turn = self.board[r][c][0]
+                if (turn == 'w' and self.whiteToMove) and (turn == 'b' and self.whiteToMove):
+                    piece = self.board[r][c][1]
+                    if piece == 'P':
+                        self.get_pawn_moves(r, c, moves)
+                    elif piece == 'R':
+                        self.get_rook_moves(r, c, moves)
+        return moves
+
+    '''
+    get all the pawn moves for pawn located in a row, col and add those moves to the list
+    '''
+    def get_pawn_moves(self, r, c, moves):
+        pass
+
+    '''
+    get all the rook moves for pawn located in a row, col and add those moves to the list
+    '''
+    def get_rook_moves(self, r, c, moves):
+        pass
+
+    '''
+    get all the bishop moves for pawn located in a row, col and add those moves to the list
+    '''
+
+    '''
+    get all the knight moves for pawn located in a row, col and add those moves to the list
+    '''
+
+    '''
+    get all the king moves for pawn located in a row, col and add those moves to the list
+    '''
+
+    '''
+    get all the queen moves for pawn located in a row, col and add those moves to the list
+    '''
+
 
 class Move():
     #turn rows and columns into ranks and files to make chess notation
@@ -56,6 +106,17 @@ class Move():
         self.end_col = end_square[1]
         self.piece_moved = board[self.start_row][self.start_col]
         self.piece_captured = board[self.end_row][self.end_col]
+        self.move_id = self.start_row * 1000 + self.start_col * 100 + self.end_row * 10 + self.end_col #gives a unique id to each move
+        print(self.move_id)
+
+    '''
+    overriding equals method
+    '''
+    def __eq__(self, other):
+        if isinstance(other, Move):
+            return self.move_id == other.move_id
+        return False
+
 
     def get_chess_notation(self):
         #can add to make this like real chess notation
