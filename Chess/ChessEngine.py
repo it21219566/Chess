@@ -17,6 +17,8 @@ class GameState():
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
         ]
+        self.move_functions = {'P': self.get_pawn_moves, 'R': self.get_rook_moves, 'N': self.get_knight_moves,
+                               'B': self.get_bishop_moves, 'K': self.get_king_moves, 'Q': self.get_queen_moves}
         self.whiteToMove = True
         self.moveLog = []
     '''
@@ -55,10 +57,7 @@ class GameState():
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and self.whiteToMove):
                     piece = self.board[r][c][1]
-                    if piece == 'P':
-                        self.get_pawn_moves(r, c, moves)
-                    elif piece == 'R':
-                        self.get_rook_moves(r, c, moves)
+                    self.move_functions[piece](r, c, moves) #calls the appropriate move_function based on piece type
         return moves
 
     '''
@@ -88,18 +87,26 @@ class GameState():
     '''
     get all the bishop moves for pawn located in a row, col and add those moves to the list
     '''
+    def get_bishop_moves(self, r, c, moves):
+        pass
 
     '''
     get all the knight moves for pawn located in a row, col and add those moves to the list
     '''
+    def get_knight_moves(self, r, c, moves):
+        pass
 
     '''
     get all the king moves for pawn located in a row, col and add those moves to the list
     '''
+    def get_king_moves(self, r, c, moves):
+        pass
 
     '''
     get all the queen moves for pawn located in a row, col and add those moves to the list
     '''
+    def get_queen_moves(self, r, c, moves):
+        pass
 
 
 class Move():
