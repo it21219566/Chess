@@ -141,7 +141,7 @@ class GameState():
         for m in knight_moves:
             end_row = r + m[0]
             end_col = c + m[1]
-            if 0 < end_row < len(self.board) and 0 < end_col < len(self.board[0]):
+            if 0 <= end_row < len(self.board) and 0 <= end_col < len(self.board[0]):
                 end_piece = self.board[end_row][end_col]
                 if end_piece[0] != allay_colour: #not an allay piece (an opponents piece or empty)
                     moves.append(Move((r, c),(end_row, end_col),  self.board))
