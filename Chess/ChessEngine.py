@@ -21,6 +21,12 @@ class GameState():
                                'B': self.get_bishop_moves, 'K': self.get_king_moves, 'Q': self.get_queen_moves}
         self.whiteToMove = True
         self.moveLog = []
+        self.white_king_location = (7, 4)
+        self.black_king_location = (0, 4)
+        self.check_mate = False
+        self.stale_mate = False
+
+
     '''
     takes a move as a parameter and executes it
     does not works for castling, en-passant and pawn promotion
@@ -30,6 +36,11 @@ class GameState():
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.moveLog.append(move) #log the move into the moveLog
         self.whiteToMove = not self.whiteToMove #swap players turn
+        #track and update kings location if the king was moved
+        if move.piece_moved == 'wK':
+            self.white_king_location = (move.end_row, move.end_col)
+        elif move.piece_moved == 'bK':
+            self.black_king_location = (move.end_row, move.end_col)
 
     '''
     undo the last move
@@ -40,12 +51,59 @@ class GameState():
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.whiteToMove = not self.whiteToMove # after undoing the move swap players turn
+            # track and update kings location if needed
+            if move.piece_moved == 'wK':
+                self.white_king_location = (move.start_row, move.start_col)
+            elif move.piece_moved == 'bK':
+                self.black_king_location = (move.start_row, move.start_col)
 
     ''''
     all moves considering checks
     '''
     def get_valid_moves(self):
-        return self.get_possible_moves()
+        #1) generate all possible moves
+        moves = self.get_possible_moves()
+        #2) for each move, make the move
+        for i in range(len(moves)-1, -1, -1):
+            self.make_move(moves[i])
+            #3) generate all the opponents moves
+            #4) for each opponents move see if the king is under attack
+            self.whiteToMove = not self.whiteToMove
+            if self.in_check():
+                moves.remove(moves[i]) #5) if they attack the king not a valid move
+            self.whiteToMove = not self.whiteToMove
+            self.undo_move()
+        if len(moves) == 0: #checking for either checkmate or stalemate by calculating valid moves
+            if self.in_check():
+                self.check_mate = True
+            else:
+                self.stale_mate = True
+        else:
+            self.check_mate = False
+            self.stale_mate = False
+
+        return moves
+
+    ''''
+    determine if the player is in check
+    '''
+    def in_check(self):
+        if self.whiteToMove:
+            return self.square_under_attack(self.white_king_location[0], self.white_king_location[1])
+        else:
+            return self.square_under_attack(self.black_king_location[0], self.black_king_location[1])
+
+    ''''
+    determine if the enemy can attack the square
+    '''
+    def square_under_attack(self, r, c):
+        self.whiteToMove = not self.whiteToMove #switch to opponents turn
+        opponents_moves = self.get_possible_moves()
+        self.whiteToMove = not self.whiteToMove  # switch the turn back
+        for move in opponents_moves:
+            if move.end_row == r and move.end_col == c: # if the square under attack
+                return True
+        return False
 
     '''
     all moves without considering checks
@@ -136,15 +194,15 @@ class GameState():
     get all the knight moves for pawn located in a row, col and add those moves to the list
     '''
     def get_knight_moves(self, r, c, moves):
-        knight_moves = ((-2,-1), (-2,1), (-1,-2), (-1,2), (1,-2), (1,2), (2,-1), (2,1))
+        knight_moves = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
         allay_colour = "w" if self.whiteToMove else "b"
         for m in knight_moves:
             end_row = r + m[0]
             end_col = c + m[1]
             if 0 <= end_row < len(self.board) and 0 <= end_col < len(self.board[0]):
                 end_piece = self.board[end_row][end_col]
-                if end_piece[0] != allay_colour: #not an allay piece (an opponents piece or empty)
-                    moves.append(Move((r, c),(end_row, end_col),  self.board))
+                if end_piece[0] != allay_colour:  # not an allay piece (an opponents piece or empty)
+                    moves.append(Move((r, c), (end_row, end_col), self.board))
 
     '''
     get all the king moves for pawn located in a row, col and add those moves to the list
