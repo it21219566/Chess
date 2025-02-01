@@ -171,7 +171,7 @@ class GameState():
                 piece_pinned = True
                 pin_direction = (self.pins[i][2], self.pins[i][3])
                 if self.board[r][c][1] != 'Q': #can not remove queen from pin on rook moves, only remove it on bishop moves
-                    self.pins,remove(self.pins[i])
+                    self.pins.remove(self.pins[i])
                 break
         directions = ((-1, 0), (0, -1), (1, 0), (0, 1)) # up, down, left and right
         opponent_colour = "b" if self.whiteToMove else "w"
@@ -180,7 +180,7 @@ class GameState():
                 end_row = r + d[0] * i
                 end_col = c + d[1] * i
                 if 0 <= end_row < len(self.board) and 0 <= end_col < len(self.board[0]): #within the board
-                    if not piece_pinned or pin_direction == d or directions == (-d[0], d[1]):
+                    if not piece_pinned or pin_direction == d or pin_direction == (-d[0], d[1]):
                         end_piece = self.board[end_row][end_col]
                         if end_piece == "--": #valid empty space
                             moves.append(Move((r, c),(end_row, end_col), self.board))
@@ -202,7 +202,7 @@ class GameState():
             if self.pins[i][0] == r and self.pins[i][1] == c:
                 piece_pinned = True
                 pin_direction = (self.pins[i][2], self.pins[i][3])
-                self.pins,remove(self.pins[i])
+                self.pins.remove(self.pins[i])
                 break
         directions = ((-1, -1), (-1, 1), (1, -1), (1, 1)) #4 diagonals
         opponent_colour = "b" if self.whiteToMove else "w"
@@ -211,7 +211,7 @@ class GameState():
                 end_row = r + d[0] * i
                 end_col = c + d[1] * i
                 if 0 <= end_row < len(self.board) and 0 <= end_col < len(self.board[0]): #within the board
-                    if not piece_pinned or pin_direction == d or directions == (-d[0], -d[1]):
+                    if not piece_pinned or pin_direction == d or pin_direction == (-d[0], -d[1]):
                         end_piece = self.board[end_row][end_col]
                         if end_piece == "--": #valid empty space
                             moves.append(Move((r, c), (end_row, end_col), self.board))
@@ -231,7 +231,7 @@ class GameState():
         for i in range(len(self.pins)-1, -1, -1):
             if self.pins[i][0] == r and self.pins[i][1] == c:
                 piece_pinned = True
-                self.pins,remove(self.pins[i])
+                self.pins.remove(self.pins[i])
                 break
         knight_moves = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
         allay_colour = "w" if self.whiteToMove else "b"
@@ -254,7 +254,7 @@ class GameState():
         for i in range(8):
             end_row = r + row_moves[i]
             end_col = c + col_moves[i]
-            if 0 < end_row < len(self.board) and 0 < end_col < len(self.board[0]):
+            if 0 <= end_row < len(self.board) and 0 <= end_col < len(self.board[0]):
                 end_piece = self.board[end_row][end_col]
                 if end_piece[0] != allay_colour:
                     #place king on the square and check for checks
