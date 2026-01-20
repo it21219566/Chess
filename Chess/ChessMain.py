@@ -53,8 +53,8 @@ def main():
                     player_clicks.append(sq_selected) #append for both 1st & last clicks
                 if len(player_clicks) == 2: #after 2nd click
                     move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                    print(move.get_chess_notation())
                     if move in valid_moves:
+                        print(move.get_chess_notation(gs))  # print only if valid
                         gs.make_move(move)
                         move_made = True
                         sq_selected = () #after making the move resets the user clicks

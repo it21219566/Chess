@@ -374,10 +374,28 @@ class Move():
             return self.move_id == other.move_id
         return False
 
-
-    def get_chess_notation(self):
-        #can add to make this like real chess notation
-        return self.get_rank_file(self.start_row, self.start_col) + self.get_rank_file(self.end_row, self.end_col)
+    def get_chess_notation(self, game_state):
+        piece = self.piece_moved[1]
+        capture = self.piece_captured != "--"
+        end_square = self.get_rank_file(self.end_row, self.end_col)
+        # Piece symbol
+        if piece == 'P':
+            notation = (
+                self.cols_to_files[self.start_col] + "x" + end_square
+                if capture else end_square
+            )
+        else:
+            notation = piece + ("x" if capture else "") + end_square
+        # Check / Checkmate detection for chess notation
+        game_state.make_move(self)
+        in_check, _, _ = game_state.check_for_pins_and_checks()
+        if in_check:
+            if len(game_state.get_valid_moves()) == 0:
+                notation += "#"
+            else:
+                notation += "+"
+        game_state.undo_move()
+        return notation
 
     def get_rank_file(self, r, c):
-        return self.cols_to_files[c], self.rows_to_ranks[r]
+        return self.cols_to_files[c] + self.rows_to_ranks[r]
