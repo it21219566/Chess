@@ -53,12 +53,20 @@ def main():
                     player_clicks.append(sq_selected) #append for both 1st & last clicks
                 if len(player_clicks) == 2: #after 2nd click
                     move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                    if move in valid_moves:
-                        print(move.get_chess_notation(gs))  # print only if valid
-                        gs.make_move(move)
-                        move_made = True
-                        sq_selected = () #after making the move resets the user clicks
-                        player_clicks = []
+                    for valid_move in valid_moves:
+                        if move == valid_move:
+                            # handle pawn promotion
+                            if valid_move.pawn_promotion and valid_move.promotion_choice is None:
+                                choice = input("Promote to Q, R, B or N: ").upper()
+                                while choice not in ['Q', 'R', 'B', 'N']:
+                                    choice = input("Invalid choice. Promote to Q, R, B or N: ").upper()
+                                valid_move.promotion_choice = choice
+                            print(valid_move.get_chess_notation(gs))
+                            gs.make_move(valid_move)  # USE ENGINE-GENERATED MOVE
+                            move_made = True
+                            sq_selected = ()
+                            player_clicks = []
+                            break
                     else:
                         player_clicks = [sq_selected]
             #key handler
